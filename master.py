@@ -1,6 +1,7 @@
 from pandas import read_excel
 import pandas as pd
 import CloseContactList as cc
+import gmaps
 
 file_name = 'dataset.xlsx'
 
@@ -36,3 +37,19 @@ for idx in range(len(positive_cases_keys)):
         
 # Print positive case's CloseContactList by key
 print(positive_cases_dict['positive_case_2'].printList())
+
+# import gmaps
+gmaps.configure(api_key='AIzaSyBxrO8mVqqGhMzZDEhnN3RVRRpYe0OzMhI')
+
+marker_locations = [
+    (-34.0, -59.166672),
+    (-32.23333, -64.433327),
+    (40.166672, 44.133331),
+    (51.216671, 5.0833302),
+    (51.333328, 4.25)
+]
+
+fig = gmaps.figure()
+markers = gmaps.marker_layer(marker_locations)
+fig.add_layer(markers)
+fig
