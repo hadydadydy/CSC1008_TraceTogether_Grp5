@@ -3,7 +3,7 @@ import numpy
 #S9037583J, S9345678C, S7890123G
 caselist = []
 all_cc = []
-dataset = 'dataset_new.xlsx'
+dataset = 'dataset_new.xlsm'
 
 #filter tracetogether token info for
 #BT strength > 90% and connection time > 5 mins 
@@ -12,8 +12,8 @@ def close_contacts(n):
     
     sheet = pd.read_excel(dataset, sheet_name=n) #import excel sheet
 
-    bt = pd.DataFrame(sheet, columns= ['BT-Strength']) #import BT-Strength excel column
-    bluetooth = bt["BT-Strength"].to_numpy() #convert column data into numpy list
+    bt = pd.DataFrame(sheet, columns= ['BT-Strength(%)']) #import BT-Strength excel column
+    bluetooth = bt["BT-Strength(%)"].to_numpy() #convert column data into numpy list
 
     ct = pd.DataFrame(sheet, columns= ['Connection Time(s)'])#import Connection Time excel column
     time = ct["Connection Time(s)"].to_numpy() #convert column data into numpy list
@@ -62,7 +62,7 @@ def newcase():
                     exit
                 else:
                     print("Err: Pls enter y or n only.")
-                    
+
             else:
                 print("Target is already positive.")
                 newcase()
