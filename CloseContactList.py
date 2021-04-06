@@ -22,6 +22,6 @@ class CloseContactList:
         temp = self.head
         listStr = first + " -> "
         while temp is not None:
-            boobs = listStr + temp.data["name"]
+            boobs = listStr + temp.data["nric"]
             print(boobs)
             temp = temp.next

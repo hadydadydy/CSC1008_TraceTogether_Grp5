@@ -32,8 +32,8 @@ for i in positive_cases_keys:
     temp = df[df["NRIC"]==i]
     for j in temp.values:
         data = {
-            "name": j[0],
-            "nric": j[1],
+            "nric": j[0],
+            "name": j[1],
             "location": j[2],
             "checkInDate": j[3],
             "checkInTime": j[4],
@@ -49,23 +49,29 @@ for idx in range(len(positive_cases_keys)):
     # Sample data to insert as close contacts for each positive case in the dict.
     # df_temp = read_excel(file_name, sheet_name = 'Cases')
     for i in caseArr:
+        op = read_excel(file_name, sheet_name=i.data["nric"])
+        blueTooth = op[(op["BT-Strength"] >= 90)]
         timePlace=df[(df["Check-in-date"]==i.data["checkInDate"]) & (df["Location"]==i.data["location"]) & (df["NRIC"]!=i.data["nric"])]
         for j in timePlace.values:
-            data = {
-                "nric": j[0],
-                "name": j[1],
-                "location": j[2],
-                "checkInDate": j[3],
-                "checkInTime": j[4],
-                "checkOutTime": j[5]
-            }
-            # Create new case using data
-            newCase = cc.Case(data)
-            
-            # Insert new case into positive case's CloseContactList by key
-            positive_cases_dict[key].insert(newCase)
+            for k in blueTooth.values:
+                if k[0] == j[0]:
+                    data = {
+                        "nric": j[0],
+                        "name": j[1],
+                        "location": j[2],
+                        "checkInDate": j[3],
+                        "checkInTime": j[4],
+                        "checkOutTime": j[5]
+                    }
+                    # Create new case using data
+                    newCase = cc.Case(data)
+                    
+                    # Insert new case into positive case's CloseContactList by key
+                    positive_cases_dict[key].insert(newCase)
         
 # Print positive case's CloseContactList by key
 for i in positive_cases_keys:
     print("Close Contacts:")
     positive_cases_dict[i].printList(i)
+
+# print(blueTooth.values)
