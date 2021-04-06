@@ -17,10 +17,11 @@ class CloseContactList:
                 temp = temp.next
             temp.next = case
 
-    def printList(self):
+    def printList(self,start):
+        first = start
         temp = self.head
-        listStr = "\nClose contacts: \n"
+        listStr = first + " -> "
         while temp is not None:
-            listStr = listStr + temp.data["name"] + " -> "
+            boobs = listStr + temp.data["name"]
+            print(boobs)
             temp = temp.next
-        print(listStr)
