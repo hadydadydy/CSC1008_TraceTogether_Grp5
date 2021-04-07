@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy
-#S9037583J, S9345678C, S7890123G
+#S9012345I, S6789012F, S9993284T, S4567890A, S0123456J, S1234382B, S7656377C, S8572664B, S9876543K
+#S3456789D, S9573284R, S7294823R, S8901234H, S5678901E, S2541560B, S7890123G, S2345678C, S1234567B
 caselist = []
 all_cc = []
-dataset = 'dataset_new.xlsm'
+dataset = 'dataset_final_v2.xlsm'
 
 #filter tracetogether token info for
 #BT strength > 90% and connection time > 5 mins 
@@ -31,7 +32,13 @@ def close_contacts(n):
 
     all_cc.append(cc_list) #add this contact list to total close contacts list
 
+    print("SHN has ben issued to close contacts:")
     print(', '.join(cc_list))
+    print("All close contacts:")
+    #print each positive case's close contacts
+    for i in range(len(all_cc)):
+        strcc = ', '.join(all_cc[i])
+        print(caselist[i], "-", strcc) 
     
 #adding in a new positive case
 def newcase():
@@ -39,18 +46,11 @@ def newcase():
 
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
-        try:
+        #try:
             #check if inputted case has already tested positive
             if positivecase not in caselist:
                 caselist.append(positivecase) #add case to positive case list
-                print("SHN has ben issued to close contacts:")
                 close_contacts(positivecase) #print close contacts of this case
-                print("All close contacts:")
-
-                #print each positive case's close contacts
-                for i in range(len(all_cc)):
-                    strcc = ', '.join(all_cc[i])
-                    print(positivecase, "-", strcc) 
                     
                 print("Positive Cases: ")
                 print(', '.join(caselist)) #print all positive cases
@@ -66,9 +66,9 @@ def newcase():
             else:
                 print("Target is already positive.")
                 newcase()
-        except:
-            print("NRIC does not exist.")
-            newcase()
+        # except:
+        #     print("NRIC does not exist.")
+        #     newcase()
 
 
 newcase()
