@@ -129,10 +129,11 @@ newcase()
 digraphEdges = [] # Edges of each positive case
 
 # Print positive case's CloseContactList by key
+
 for i in positive_cases_keys:
     print("Close Contacts:")
     digraphEdges.append(positive_cases_dict[i].printList(i))
-
+print("SHN has ben issued to close contacts")
 # print(digraphEdges)
 # digraphEdges1 = list()
 # for i in digraphEdges:
