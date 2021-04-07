@@ -1,5 +1,6 @@
 from pandas import read_excel
 import pandas as pd
+import numpy
 import CloseContactList as cc
 import graphviz
 
@@ -20,6 +21,7 @@ file_name = 'dataset_final_v2.xlsm'
 
 xls = pd.ExcelFile(file_name)
 sheet = xls.sheet_names
+df = read_excel(file_name, sheet_name= 'SafeEntry')
 
 # To store the positive cases (key: positive case's NRIC, value: CloseContactList)
 positive_cases_dict = {}
@@ -27,19 +29,8 @@ positive_cases_keys = []
 caseArr = []
 # positive_cases_keys = ['positive_case_1', 'positive_case_2']
 
-for i in sheet:
-    if i == 'SafeEntry':
-        pass
-    else:
-        positive_cases_keys.append(i)
-
-
-# For iterating through positive cases and assigning close contacts to each.
-# Once filtered by Hady's contactTrace() function which returns close contact array.
-df = read_excel(file_name, sheet_name= 'SafeEntry')
-
-for i in positive_cases_keys:
-    temp = df[df["NRIC"]==i]
+def close_contacts(n):
+    temp = df[df["NRIC"]==n]
     for j in temp.values:
         data = {
             "name": j[0],
@@ -52,16 +43,31 @@ for i in positive_cases_keys:
         newCase = cc.Case(data)
         caseArr.append(newCase)
 
-for idx in range(len(positive_cases_keys)):
-    key = positive_cases_keys[idx] # Replace with positive case's NRIC.
+
+    key = n # Replace with positive case's NRIC.
     positive_cases_dict[key] = cc.CloseContactList()
 
-    # Sample data to insert as close contacts for each positive case in the dict.
-    # df_temp = read_excel(file_name, sheet_name = 'Cases')
+        # Sample data to insert as close contacts for each positive case in the dict.
+        # df_temp = read_excel(file_name, sheet_name = 'Cases')
+
     for i in caseArr:
-        op = read_excel(file_name, sheet_name=i.data["nric"])
-        blueTooth = op[(op["BT-Strength(%)"] >= 90)]
-        timePlace=df[(df["Check-in-date"]==i.data["checkInDate"]) & (df["Location"]==i.data["location"]) & (df["NRIC"]!=i.data["nric"])]
+        data = pd.read_excel(file_name, sheet_name=i.data["nric"])
+        op = data.drop_duplicates(subset=["NRIC"],keep="last", inplace=True)
+        # bt = pd.DataFrame(op, columns= ['BT-Strength(%)'])
+        # bluetooth = bt["BT-Strength(%)"].to_numpy()
+        # ct = pd.DataFrame(op, columns= ['Connection Time(s)'])
+        # time = ct["Connection Time(s)"].to_numpy()
+
+        # lst = op.values.tolist()
+        # lst = numpy.array(lst)
+        # namelst = lst[:1]
+
+        blueTooth = data[(data["BT-Strength(%)"] >= 90) & (data["Connection Time(s)"] > 300)]
+        timePlace = df[(df["Check-in-date"]==i.data["checkInDate"]) & (df["Location"]==i.data["location"]) & (df["NRIC"]!=i.data["nric"])]
+        # for j in timePlace.values:
+            # for k in blueTooth.values:
+                # if k[1] == j[1]:
+        
         for j in timePlace.values:
             for k in blueTooth.values:
                 if k[1] == j[1]:
@@ -78,6 +84,47 @@ for idx in range(len(positive_cases_keys)):
                     
                     # Insert new case into positive case's CloseContactList by key
                     positive_cases_dict[key].insert(newCase)
+
+# for i in sheet:
+#     if i == 'SafeEntry':
+#         pass
+#     else:
+#         positive_cases_keys.append(i)
+def newcase():
+    positivecase = input("Enter positive case: ")
+
+    if positivecase is not None:
+        #check here if positivecase is in dataset, if not return error msg
+        #try:
+            #check if inputted case has already tested positive
+            if positivecase not in positive_cases_keys:
+                positive_cases_keys.append(positivecase) #add case to positive case list
+                close_contacts(positivecase) #print close contacts of this case
+                    
+                print("Positive Cases: ")
+                print(', '.join(positive_cases_keys)) #print all positive cases
+
+                cont = input("Enter more positive cases? (y/n): ")
+                if cont == 'y':
+                    newcase() #recursive call to continue adding new cases 
+                elif cont == 'n':
+                    exit
+                else:
+                    print("Err: Pls enter y or n only.")
+
+            else:
+                print("Target is already positive.")
+                newcase()
+        # except:
+        #     print("NRIC does not exist.")
+        #     newcase()
+
+newcase()
+
+
+# For iterating through positive cases and assigning close contacts to each.
+# Once filtered by Hady's contactTrace() function which returns close contact array.
+
         
 digraphEdges = [] # Edges of each positive case
 
@@ -85,6 +132,15 @@ digraphEdges = [] # Edges of each positive case
 for i in positive_cases_keys:
     print("Close Contacts:")
     digraphEdges.append(positive_cases_dict[i].printList(i))
+
+# print(digraphEdges)
+# digraphEdges1 = list()
+# for i in digraphEdges:
+#     for j in i: 
+#         if i != j:
+#             digraphEdges1.append(j)
+
+# print(digraphEdges1)
 
 
 def creategraph(): 

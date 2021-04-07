@@ -26,5 +26,9 @@ class CloseContactList:
             boobs = listStr + temp.data["nric"]
             edges.append([first, temp.data["nric"]])
             print(boobs)
+            penis = temp.data["nric"]
             temp = temp.next
+            if temp is not None:
+                if penis == temp.data["nric"]:
+                    temp = temp.next
         return edges
