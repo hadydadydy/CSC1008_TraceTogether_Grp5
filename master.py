@@ -173,11 +173,45 @@ def newcase(app, newCaseWindow):
         else:
             showWarning('The target is already positive.')
 
+win = QMainWindow()
+
 def window():
-    app =  QApplication(sys.argv)
-    m = folium.Map(
-        location=[1.2864, 103.8253], tiles='Stamen Toner', zoom_start=15
-    )
+
+    win.setWindowTitle("dsfsdf")
+
+    win.central_widget = QWidget()               
+    win.setCentralWidget(win.central_widget)  
+
+    lay = QVBoxLayout(win.central_widget)
+
+    graphPicLabel = QtWidgets.QLabel(win)
+    pixmap = QPixmap('digraph.png')
+    graphPicLabel.setPixmap(pixmap)
+    win.resize(pixmap.width(), pixmap.height())
+
+    button4 = QPushButton(win)
+    button4.setText("Show map")
+    button4.adjustSize()
+    # button4.move(64,132)
+    button4.clicked.connect(show_map)
+
+    win.resize(pixmap.width(),pixmap.height())
+
+    lay.addWidget(graphPicLabel)
+    lay.addWidget(button4, alignment=QtCore.Qt.AlignRight)
+    win.show()
+
+    sys.exit(app.exec_())
+
+map_window = QMainWindow()
+def show_map():
+    print("Button 4 clicked")  
+    win.close()
+    map_window.setWindowTitle("CSC1008 Cluster Map")
+
+    map_window.central_widget = QWidget()               
+    map_window.setCentralWidget(map_window.central_widget)   
+
     m = folium.Map(
         location=[1.3521, 103.8198],
         zoom_start=11,
@@ -185,23 +219,6 @@ def window():
         attr='Mapbox Control Room'
     )
 
-    markers = [
-        {
-            "latlng": [1.2864, 103.8253],
-            "markercolor": "blue",
-            "radius": 15,
-            "count": 10,
-            "popup": "message here"
-        },
-        {
-            "latlng": [1.2815, 103.8448],
-            "markercolor": "blue",
-            "radius": 15,
-            "count": 15,
-            "popup": "message peeps"
-        }
-    ]
-   
     p1 = [1.2864, 103.8253]
     m.add_child(folium.CircleMarker(
                             p1,
@@ -213,64 +230,17 @@ def window():
                             fill_opacity=0.7
     ))
 
-    win = QMainWindow()
-    win.setWindowTitle("CSC1008 Group 5")
-
-    win.central_widget = QWidget()               
-    win.setCentralWidget(win.central_widget)   
-
-    button1 = QPushButton(win)
-    button1.setText("Show close contact list")
-    button1.adjustSize()
-    button1.move(64,32)
-
-    button2 = QPushButton(win)
-    button2.setText("Show cluster")
-    button2.adjustSize()
-    button2.move(64,64)
-    button2.clicked.connect(button2_clicked)
-
-    button3 = QPushButton(win)
-    button3.setText("Show safe entry records")
-    button3.adjustSize()
-    button3.move(64,100)
-    button3.clicked.connect(button3_clicked)
-
-    button4 = QPushButton(win)
-    button4.setText("Quit")
-    button4.adjustSize()
-    button4.move(64,132)
-    button4.clicked.connect(button4_clicked)
-
     data = io.BytesIO()
     m.save(data, close_file=False)
 
-    w = QWebEngineView(win)
+    w = QWebEngineView(map_window)
     w.setHtml(data.getvalue().decode())
-    pixmap = QPixmap('digraph.png')
-    label1 = QtWidgets.QLabel(win)
-    label1.setPixmap(pixmap)
-    label1.move(750,50)
-    label1.resize(500,500)
 
     w.resize(640, 480)
-    w.move(100,200)
+    w.move(0,0)
     w.show()
-    win.resize(1000,1000)
-
-    win.showFullScreen()
-    win.show()
-
-    sys.exit(app.exec_())
-
-def button2_clicked():
-    print("Button 2 clicked")  
-
-def button3_clicked():
-    print("Button 3 clicked")
-
-def button4_clicked():
-    print("Button 4 clicked")  
+    map_window.resize(640,480)
+    map_window.show()
 
 def main():
     newcase(app, newCaseWindow)
