@@ -32,6 +32,9 @@ app =  QApplication(sys.argv)
 graphWindow = QMainWindow()
 # positive_cases_keys = ['positive_case_1', 'positive_case_2']
 
+# class MyError(Exception):
+#     pass
+
 def closeWindow():
     print("Button 1 clicked")
     graphWindow.close()
@@ -84,6 +87,8 @@ def creategraph():
 
 def close_contacts(n):
     temp = df[df["NRIC"]==n]
+    # if temp == None:
+    #     raise MyError('NRIC not found in database')
     for j in temp.values:
         data = {
             "name": j[0],
@@ -97,8 +102,9 @@ def close_contacts(n):
         caseArr.append(newCase)
 
 
-    key = n # Replace with positive case's NRIC.
-    positive_cases_dict[key] = cc.CloseContactList()
+    # key = n # Replace with positive case's NRIC.
+    # positive_cases_dict[key] = cc.CloseContactList()
+    positive_cases_dict[n] = cc.CloseContactList()
 
         # Sample data to insert as close contacts for each positive case in the dict.
         # df_temp = read_excel(file_name, sheet_name = 'Cases')
@@ -136,12 +142,14 @@ def close_contacts(n):
                     newCase = cc.Case(data)
                     
                     # Insert new case into positive case's CloseContactList by key
-                    positive_cases_dict[key].insert(newCase)
+                    positive_cases_dict[n].insert(newCase)
     
     for i in positive_cases_keys:
         print("Close Contacts:")
-        digraphEdges.append(positive_cases_dict[i].printList(i))
+        positive_cases_dict[i].printList(i)
+        # digraphEdges.append(positive_cases_dict[i].printList(i))
 
+    digraphEdges.append(positive_cases_dict[n].edges(n))
     creategraph()
 
     # showCloseContacts(app, graphWindow)

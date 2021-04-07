@@ -23,12 +23,25 @@ class CloseContactList:
         listStr = first + " -> "
         edges = []
         while temp is not None:
-            boobs = listStr + temp.data["nric"]
-            edges.append([first, temp.data["nric"]])
-            print(boobs)
-            penis = temp.data["nric"]
+            sinep = listStr + temp.data["nric"]
+            # edges.append([first, temp.data["nric"]])
+            print(sinep)
+            tt = temp.data["nric"]
             temp = temp.next
             if temp is not None:
-                if penis == temp.data["nric"]:
+                if tt == temp.data["nric"]:
+                    temp = temp.next
+        # return edges
+
+    def edges(self,start):
+        first = start
+        temp = self.head
+        edges = []
+        while temp is not None:
+            edges.append([first, temp.data["nric"]])
+            tt = temp.data["nric"]
+            temp = temp.next
+            if temp is not None:
+                if tt == temp.data["nric"]:
                     temp = temp.next
         return edges
