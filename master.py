@@ -142,7 +142,7 @@ def close_contacts(n):
                     newCase = cc.Case(data)
                     
                     # Insert new case into positive case's CloseContactList by key
-                    positive_cases_dict[n].insert(newCase)
+                    positive_cases_dict[i.data["nric"]].insert(newCase)
     
     for i in positive_cases_keys:
         print("Close Contacts:")
