@@ -6,7 +6,6 @@ import graphviz
 
 from PyQt5 import QtWidgets,QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog, QPushButton, QLineEdit, QMessageBox
-# from PyQt5.QtWebEngineWidgets import QtWebEngineWidgets
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QPixmap
 import sys
@@ -14,10 +13,6 @@ import folium
 import io
 
 file_name = 'dataset_final_v2.xlsm'
-# file_name1 = 'dataset1.xlsx'
-
-# xl = pd.ExcelFile(file_name)
-# res = len(xl.sheet_names)
 
 xls = pd.ExcelFile(file_name)
 sheet = xls.sheet_names
@@ -28,12 +23,11 @@ positive_cases_dict = {}
 positive_cases_keys = []
 caseArr = []
 digraphEdges = [] # Edges of each positive case
+
 app =  QApplication(sys.argv)
 graphWindow = QMainWindow()
-# positive_cases_keys = ['positive_case_1', 'positive_case_2']
-
-# class MyError(Exception):
-#     pass
+warningWindow = QMainWindow()
+newCaseWindow = QMainWindow()
 
 def closeWindow():
     print("Button 1 clicked")
@@ -60,7 +54,6 @@ def showCloseContacts(app, graphWindow):
     msg.setText("Would you like to add more positive cases?")
     msg.setWindowTitle("MessageBox demo")
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-    # msg.buttonClicked.connect(msgbtn)
 
     lay.addWidget(shnLabel)
     lay.addWidget(graphPicLabel)
@@ -87,8 +80,7 @@ def creategraph():
 
 def close_contacts(n):
     temp = df[df["NRIC"]==n]
-    # if temp == None:
-    #     raise MyError('NRIC not found in database')
+
     for j in temp.values:
         data = {
             "name": j[0],
@@ -101,32 +93,15 @@ def close_contacts(n):
         newCase = cc.Case(data)
         caseArr.append(newCase)
 
-
-    # key = n # Replace with positive case's NRIC.
-    # positive_cases_dict[key] = cc.CloseContactList()
     positive_cases_dict[n] = cc.CloseContactList()
-
-        # Sample data to insert as close contacts for each positive case in the dict.
-        # df_temp = read_excel(file_name, sheet_name = 'Cases')
 
     for i in caseArr:
         data = pd.read_excel(file_name, sheet_name=i.data["nric"])
         op = data.drop_duplicates(subset=["NRIC"],keep="last", inplace=True)
-        # bt = pd.DataFrame(op, columns= ['BT-Strength(%)'])
-        # bluetooth = bt["BT-Strength(%)"].to_numpy()
-        # ct = pd.DataFrame(op, columns= ['Connection Time(s)'])
-        # time = ct["Connection Time(s)"].to_numpy()
-
-        # lst = op.values.tolist()
-        # lst = numpy.array(lst)
-        # namelst = lst[:1]
 
         blueTooth = data[(data["BT-Strength(%)"] >= 90) & (data["Connection Time(s)"] > 300)]
         timePlace = df[(df["Check-in-date"]==i.data["checkInDate"]) & (df["Location"]==i.data["location"]) & (df["NRIC"]!=i.data["nric"])]
-        # for j in timePlace.values:
-            # for k in blueTooth.values:
-                # if k[1] == j[1]:
-        
+  
         for j in timePlace.values:
             for k in blueTooth.values:
                 if k[1] == j[1]:
@@ -147,20 +122,9 @@ def close_contacts(n):
     for i in positive_cases_keys:
         print("Close Contacts:")
         positive_cases_dict[i].printList(i)
-        # digraphEdges.append(positive_cases_dict[i].printList(i))
 
     digraphEdges.append(positive_cases_dict[n].edges(n))
     creategraph()
-
-    # showCloseContacts(app, graphWindow)
-
-# for i in sheet:
-#     if i == 'SafeEntry':
-#         pass
-#     else:
-#         positive_cases_keys.append(i)
-# app =  QApplication(sys.argv)
-warningWindow = QMainWindow()
 
 def showWarning(text):
     msgBox = QMessageBox(warningWindow)
@@ -168,13 +132,10 @@ def showWarning(text):
     msgBox.setText(text)
     msgBox.setWindowTitle('Oops!')
     msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-    #    msgBox.buttonClicked.connect(msgButtonClick)
     returnValue = msgBox.exec()
     if returnValue == QMessageBox.Ok:
         print('OK clicked')
         newcase(app, newCaseWindow)
-
-newCaseWindow = QMainWindow()
 
 def newcase(app, newCaseWindow):
     newCaseWindow.central_widget = QWidget()               
@@ -188,96 +149,27 @@ def newcase(app, newCaseWindow):
 
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
-        #try:
-            #check if inputted case has already tested positive
-            if positivecase not in positive_cases_keys:
-                positive_cases_keys.append(positivecase) #add case to positive case list
-                close_contacts(positivecase) #print close contacts of this case
-                    
-                print("Positive Cases: ")
-                print(', '.join(positive_cases_keys)) #print all positive cases
+        #check if inputted case has already tested positive
+        if positivecase not in positive_cases_keys:
+            positive_cases_keys.append(positivecase) #add case to positive case list
+            close_contacts(positivecase) #print close contacts of this case
+                
+            print("Positive Cases: ")
+            print(', '.join(positive_cases_keys)) #print all positive cases
 
-                cont = showCloseContacts(app, graphWindow)
+            cont = showCloseContacts(app, graphWindow)
 
-                if cont == 'y':
-                    closeWindow()
-                    newcase(app, newCaseWindow) #recursive call to continue adding new cases 
-                elif cont == 'n':
-                    closeWindow()
-                    exit
-                else:
-                    showWarning('Please click Yes or No only.')
-
+            if cont == 'y':
+                closeWindow()
+                newcase(app, newCaseWindow) #recursive call to continue adding new cases 
+            elif cont == 'n':
+                closeWindow()
+                exit
             else:
-                showWarning("Target is already positive.")
-        # except:
-        #     print("NRIC does not exist.")
-        #     newcase()
+                showWarning('Please click Yes or No only.')
 
-newcase(app, newCaseWindow)
-
-
-# For iterating through positive cases and assigning close contacts to each.
-# Once filtered by Hady's contactTrace() function which returns close contact array.
-
-        
-# digraphEdges = [] # Edges of each positive case
-
-# Print positive case's CloseContactList by key
-
-# for i in positive_cases_keys:
-#     print("Close Contacts:")
-#     digraphEdges.append(positive_cases_dict[i].printList(i))
-
-
-# def creategraph(): 
-#     d = graphviz.Digraph()
-#     d.attr(size='10,10')
-
-#     for i in digraphEdges:
-#         for j in i:
-#             d.edge(j[0],j[1])
-
-#     d.render('digraph', format='png', view=False) 
-
-# creategraph()
-
-# graphWindow = QMainWindow()
-
-# def showCloseContacts(app, graphWindow):
-#     graphWindow.setWindowTitle("DiGraph")
-    
-#     graphWindow.central_widget = QWidget()               
-#     graphWindow.setCentralWidget(graphWindow.central_widget)  
-
-#     lay = QVBoxLayout(graphWindow.central_widget)
-
-#     shnLabel = QtWidgets.QLabel("SHN has been issued to close contacts")
-    
-#     graphPicLabel = QtWidgets.QLabel(graphWindow)
-#     pixmap = QPixmap('digraph.png')
-#     graphPicLabel.setPixmap(pixmap)
-#     graphWindow.resize(pixmap.width(), pixmap.height())
-
-#     lay.addWidget(shnLabel)
-#     lay.addWidget(graphPicLabel)
-
-#     addMoreOptionBtn = QPushButton(graphWindow)
-#     addMoreOptionBtn.setText("Okay")
-#     addMoreOptionBtn.adjustSize()
-#     # addMoreOptionBtn.move(10,150)
-#     addMoreOptionBtn.clicked.connect(showAddMoreWindow)
-
-#     lay.addWidget(addMoreOptionBtn, alignment=QtCore.Qt.AlignRight)
-#     graphWindow.show()
-
-#     sys.exit(app.exec_())
-
-# def showAddMoreWindow():
-#     print("Button 1 clicked")
-#     graphWindow.close()
-
-# showCloseContacts(app, graphWindow)
+        else:
+            showWarning("Target is already positive.")
 
 def window():
     app =  QApplication(sys.argv)
@@ -307,16 +199,7 @@ def window():
             "popup": "message peeps"
         }
     ]
-
-    # for i in markers: 
-    #     folium.Marker(i["latlng"], icon=DivIcon(
-    #         icon_size=(150,36),
-    #         icon_anchor=(7,20),
-    #         html='<div style="font-size: 18pt; color : black">%s</div>' % i["count"],
-    #     )).add_to(m)
-    #     m.add_child(folium.CircleMarker(i["latlng"], radius=i["radius"]))
-
-    
+   
     p1 = [1.2864, 103.8253]
     m.add_child(folium.CircleMarker(
                             p1,
@@ -327,25 +210,6 @@ def window():
                             color = 'grey',
                             fill_opacity=0.7
     ))
-    # folium.Marker(p1, icon=DivIcon(
-    #         icon_size=(150,36),
-    #         icon_anchor=(7,20),
-    #         html='<div style="vertical-align: middle; font-size: 15pt; color :black">8</div>',
-    #         )).add_to(m)
-    # folium.Marker(p1, icon=DivIcon(
-    #         icon_size=(150,36),
-    #         icon_anchor=(7,20),
-    #         html='<div style="vertical-align: middle; font-size: 15pt; color :black">8</div>',
-    #         )).add_to(m)
-    # m.add_child(folium.CircleMarker(p1, radius=20))
-
-    # p2 = [1.2815, 103.8448]
-    # folium.Marker(p2, icon=DivIcon(
-    #         icon_size=(150,36),
-    #         icon_anchor=(7,20),
-    #         html='<div style="font-size: 15pt; color :black">2</div>',
-    #         )).add_to(m)
-    # m.add_child(folium.CircleMarker(p2, radius=15))
 
     win = QMainWindow()
     win.setWindowTitle("CSC1008 Group 5")
@@ -357,8 +221,6 @@ def window():
     button1.setText("Show close contact list")
     button1.adjustSize()
     button1.move(64,32)
-    # button1.clicked.connect(button1_clicked)
-
 
     button2 = QPushButton(win)
     button2.setText("Show cluster")
@@ -384,10 +246,8 @@ def window():
     w = QWebEngineView(win)
     w.setHtml(data.getvalue().decode())
     pixmap = QPixmap('digraph.png')
-    # pixmap = pixmap.scaledToWidth(400)
     label1 = QtWidgets.QLabel(win)
     label1.setPixmap(pixmap)
-    # label1.setScaledContents(True)
     label1.move(750,50)
     label1.resize(500,500)
 
@@ -399,13 +259,7 @@ def window():
     win.showFullScreen()
     win.show()
 
-
     sys.exit(app.exec_())
-
-
-
-    # absolutePath = Path('/dataset.xlsx').resolve()
-    # os.system(f'start excel.exe "{absolutePath}"')
 
 def button2_clicked():
     print("Button 2 clicked")  
@@ -416,9 +270,9 @@ def button3_clicked():
 def button4_clicked():
     print("Button 4 clicked")  
 
-window()
+def main():
+    newcase(app, newCaseWindow)
+    window()
 
-
-# print(digraphEdges)
-
-# print(blueTooth)
+if __name__ == "__main__":
+    main()
