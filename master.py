@@ -133,19 +133,11 @@ digraphEdges = [] # Edges of each positive case
 for i in positive_cases_keys:
     print("Close Contacts:")
     digraphEdges.append(positive_cases_dict[i].printList(i))
-print("SHN has ben issued to close contacts")
-# print(digraphEdges)
-# digraphEdges1 = list()
-# for i in digraphEdges:
-#     for j in i: 
-#         if i != j:
-#             digraphEdges1.append(j)
-
-# print(digraphEdges1)
 
 
 def creategraph(): 
     d = graphviz.Digraph()
+    d.attr(size='10,10')
 
     for i in digraphEdges:
         for j in i:
@@ -154,6 +146,41 @@ def creategraph():
     d.render('digraph', format='png', view=False) 
 
 creategraph()
+
+def showCloseContacts():
+    app =  QApplication(sys.argv)
+
+    win = QMainWindow()
+    win.setWindowTitle("DiGraph")
+    
+    win.central_widget = QWidget()               
+    win.setCentralWidget(win.central_widget)    
+    lay = QVBoxLayout(win.central_widget)
+
+    label1 = QtWidgets.QLabel("SHN has ben issued to close contacts")
+    label1.move(10,10)
+    
+    label = QtWidgets.QLabel(win)
+    pixmap = QPixmap('digraph.png')
+    label.setPixmap(pixmap)
+    win.resize(pixmap.width(), pixmap.height()+100)
+    label.move(50,50)
+
+    lay.addWidget(label1)
+    lay.addWidget(label)
+    win.show()
+
+    sys.exit(app.exec_())
+
+showCloseContacts()
+# print(digraphEdges)
+# digraphEdges1 = list()
+# for i in digraphEdges:
+#     for j in i: 
+#         if i != j:
+#             digraphEdges1.append(j)
+
+# print(digraphEdges1)
 
 def window():
     app =  QApplication(sys.argv)
@@ -219,8 +246,10 @@ def window():
     w = QWebEngineView(win)
     w.setHtml(data.getvalue().decode())
     pixmap = QPixmap('digraph.png')
+    # pixmap = pixmap.scaledToWidth(400)
     label1 = QtWidgets.QLabel(win)
     label1.setPixmap(pixmap)
+    # label1.setScaledContents(True)
     label1.move(750,50)
     label1.resize(500,500)
 
@@ -234,6 +263,7 @@ def window():
 
 
     sys.exit(app.exec_())
+
 
 def button1_clicked():
     print("Button 1 clicked")
