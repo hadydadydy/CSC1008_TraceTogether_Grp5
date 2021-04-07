@@ -4,7 +4,7 @@ import numpy
 import CloseContactList as cc
 import graphviz
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets,QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog, QPushButton
 # from PyQt5.QtWebEngineWidgets import QtWebEngineWidgets
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -147,32 +147,43 @@ def creategraph():
 
 creategraph()
 
-def showCloseContacts():
-    app =  QApplication(sys.argv)
+app =  QApplication(sys.argv)
+graphWindow = QMainWindow()
 
-    win = QMainWindow()
-    win.setWindowTitle("DiGraph")
+def showCloseContacts(app, graphWindow):
+    graphWindow.setWindowTitle("DiGraph")
     
-    win.central_widget = QWidget()               
-    win.setCentralWidget(win.central_widget)    
-    lay = QVBoxLayout(win.central_widget)
+    graphWindow.central_widget = QWidget()               
+    graphWindow.setCentralWidget(graphWindow.central_widget)  
 
-    label1 = QtWidgets.QLabel("SHN has ben issued to close contacts")
-    label1.move(10,10)
+    lay = QVBoxLayout(graphWindow.central_widget)
+
+    shnLabel = QtWidgets.QLabel("SHN has been issued to close contacts")
     
-    label = QtWidgets.QLabel(win)
+    graphPicLabel = QtWidgets.QLabel(graphWindow)
     pixmap = QPixmap('digraph.png')
-    label.setPixmap(pixmap)
-    win.resize(pixmap.width(), pixmap.height()+100)
-    label.move(50,50)
+    graphPicLabel.setPixmap(pixmap)
+    graphWindow.resize(pixmap.width(), pixmap.height())
 
-    lay.addWidget(label1)
-    lay.addWidget(label)
-    win.show()
+    lay.addWidget(shnLabel)
+    lay.addWidget(graphPicLabel)
+
+    addMoreOptionBtn = QPushButton(graphWindow)
+    addMoreOptionBtn.setText("Okay")
+    addMoreOptionBtn.adjustSize()
+    # addMoreOptionBtn.move(10,150)
+    addMoreOptionBtn.clicked.connect(button1_clicked)
+
+    lay.addWidget(addMoreOptionBtn, alignment=QtCore.Qt.AlignRight)
+    graphWindow.show()
 
     sys.exit(app.exec_())
 
-showCloseContacts()
+def button1_clicked():
+    print("Button 1 clicked")
+    graphWindow.close()
+
+showCloseContacts(app, graphWindow)
 # print(digraphEdges)
 # digraphEdges1 = list()
 # for i in digraphEdges:
@@ -265,8 +276,7 @@ def window():
     sys.exit(app.exec_())
 
 
-def button1_clicked():
-    print("Button 1 clicked")
+
     # absolutePath = Path('/dataset.xlsx').resolve()
     # os.system(f'start excel.exe "{absolutePath}"')
 
