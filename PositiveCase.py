@@ -32,3 +32,14 @@ class CCList:
             listStr = listStr + temp.data["name"] + " -> "
             temp = temp.next
         print(listStr)
+
+    def displayDigraph(self):
+        edges = []
+        temp = self.head
+        # listStr = "\nClose contacts: \n"
+        while temp is not None:
+            # listStr = listStr + temp.data["name"] + " -> "
+            edges.append(temp.data["name"])
+            temp = temp.next
+
+        return edges

@@ -21,7 +21,10 @@ class CloseContactList:
         first = start
         temp = self.head
         listStr = first + " -> "
+        edges = []
         while temp is not None:
             boobs = listStr + temp.data["nric"]
+            edges.append([first, temp.data["nric"]])
             print(boobs)
             temp = temp.next
+        return edges
