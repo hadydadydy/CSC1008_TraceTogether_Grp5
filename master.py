@@ -2,7 +2,7 @@ from pandas import read_excel
 import pandas as pd
 import CloseContactList as cc
 
-file_name = 'dataset1.xlsx'
+file_name = 'dataset_final_DY.xlsx'
 # file_name1 = 'dataset1.xlsx'
 
 # xl = pd.ExcelFile(file_name)
@@ -18,7 +18,7 @@ caseArr = []
 # positive_cases_keys = ['positive_case_1', 'positive_case_2']
 
 for i in sheet:
-    if i == 'Cases':
+    if i == 'SafeEntry':
         pass
     else:
         positive_cases_keys.append(i)
@@ -26,14 +26,14 @@ for i in sheet:
 
 # For iterating through positive cases and assigning close contacts to each.
 # Once filtered by Hady's contactTrace() function which returns close contact array.
-df = read_excel(file_name, sheet_name= 'Cases')
+df = read_excel(file_name, sheet_name= 'SafeEntry')
 
 for i in positive_cases_keys:
     temp = df[df["NRIC"]==i]
     for j in temp.values:
         data = {
-            "nric": j[0],
-            "name": j[1],
+            "name": j[0],
+            "nric": j[1],
             "location": j[2],
             "checkInDate": j[3],
             "checkInTime": j[4],
@@ -50,14 +50,14 @@ for idx in range(len(positive_cases_keys)):
     # df_temp = read_excel(file_name, sheet_name = 'Cases')
     for i in caseArr:
         op = read_excel(file_name, sheet_name=i.data["nric"])
-        blueTooth = op[(op["BT-Strength"] >= 90)]
+        blueTooth = op[(op["BT-Strength(%)"] >= 90)]
         timePlace=df[(df["Check-in-date"]==i.data["checkInDate"]) & (df["Location"]==i.data["location"]) & (df["NRIC"]!=i.data["nric"])]
         for j in timePlace.values:
             for k in blueTooth.values:
-                if k[0] == j[0]:
+                if k[1] == j[1]:
                     data = {
-                        "nric": j[0],
-                        "name": j[1],
+                        "name": j[0],
+                        "nric": j[1],
                         "location": j[2],
                         "checkInDate": j[3],
                         "checkInTime": j[4],
@@ -74,4 +74,4 @@ for i in positive_cases_keys:
     print("Close Contacts:")
     positive_cases_dict[i].printList(i)
 
-# print(blueTooth.values)
+# print(blueTooth)
