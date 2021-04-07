@@ -5,7 +5,7 @@ import CloseContactList as cc
 import graphviz
 
 from PyQt5 import QtWidgets,QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog, QPushButton, QLineEdit
 # from PyQt5.QtWebEngineWidgets import QtWebEngineWidgets
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QPixmap
@@ -90,8 +90,16 @@ def close_contacts(n):
 #         pass
 #     else:
 #         positive_cases_keys.append(i)
-def newcase():
-    positivecase = input("Enter positive case: ")
+app =  QApplication(sys.argv)
+newCaseWindow = QMainWindow()
+
+def newcase(app, newCaseWindow):
+    newCaseWindow.central_widget = QWidget()               
+    newCaseWindow.setCentralWidget(newCaseWindow.central_widget)  
+
+    positivecase, okPressed = QInputDialog.getText(newCaseWindow, "CSC1008 TraceTogether","Enter new positive case:", QLineEdit.Normal, "")
+    if okPressed and positivecase != '':
+        print(positivecase)
 
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
@@ -106,7 +114,7 @@ def newcase():
 
                 cont = input("Enter more positive cases? (y/n): ")
                 if cont == 'y':
-                    newcase() #recursive call to continue adding new cases 
+                    newcase(app, newCaseWindow) #recursive call to continue adding new cases 
                 elif cont == 'n':
                     exit
                 else:
@@ -114,12 +122,12 @@ def newcase():
 
             else:
                 print("Target is already positive.")
-                newcase()
+                newcase(app, newCaseWindow)
         # except:
         #     print("NRIC does not exist.")
         #     newcase()
 
-newcase()
+newcase(app, newCaseWindow)
 
 
 # For iterating through positive cases and assigning close contacts to each.
@@ -147,7 +155,6 @@ def creategraph():
 
 creategraph()
 
-app =  QApplication(sys.argv)
 graphWindow = QMainWindow()
 
 def showCloseContacts(app, graphWindow):
@@ -184,14 +191,6 @@ def button1_clicked():
     graphWindow.close()
 
 showCloseContacts(app, graphWindow)
-# print(digraphEdges)
-# digraphEdges1 = list()
-# for i in digraphEdges:
-#     for j in i: 
-#         if i != j:
-#             digraphEdges1.append(j)
-
-# print(digraphEdges1)
 
 def window():
     app =  QApplication(sys.argv)
