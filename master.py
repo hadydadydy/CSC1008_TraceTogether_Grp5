@@ -10,7 +10,9 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QPixmap
 import sys
 import folium
+from folium.features import DivIcon
 import io
+
 
 file_name = 'dataset_final_v2.xlsm'
 
@@ -219,16 +221,26 @@ def show_map():
         attr='Mapbox Control Room'
     )
 
-    p1 = [1.2864, 103.8253]
-    m.add_child(folium.CircleMarker(
-                            p1,
-                            radius = 15,
-                            popup="sdfdsds m",
-                            fill=True, # Set fill to True
-                            fill_color='#999999',
-                            color = 'grey',
-                            fill_opacity=0.7
-    ))
+    # p1 = [1.2864, 103.8253]
+    lat = []
+    lon = []
+    count = 0
+    for i in positive_cases_keys:
+        temp = df[df["NRIC"]==i]
+        temp = temp.drop_duplicates(subset=["NRIC","Location"],keep='last')
+        for j in temp.values:
+            count = count + 1
+            lat.append(j[6])
+            lon.append(j[7])
+
+    for i in range(len(lat)):
+        p1 = [lat[i],lon[i]]
+        folium.Marker(p1, icon=DivIcon(
+            icon_size=(150,36),
+            icon_anchor=(7,20),
+            html='<div style="font-size: 15pt; color :black">2</div>',
+        )).add_to(m)
+        m.add_child(folium.CircleMarker(p1, radius=5+count))
 
     data = io.BytesIO()
     m.save(data, close_file=False)
