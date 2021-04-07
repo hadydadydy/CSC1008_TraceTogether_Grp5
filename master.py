@@ -179,14 +179,14 @@ def showCloseContacts(app, graphWindow):
     addMoreOptionBtn.setText("Okay")
     addMoreOptionBtn.adjustSize()
     # addMoreOptionBtn.move(10,150)
-    addMoreOptionBtn.clicked.connect(button1_clicked)
+    addMoreOptionBtn.clicked.connect(showAddMoreWindow)
 
     lay.addWidget(addMoreOptionBtn, alignment=QtCore.Qt.AlignRight)
     graphWindow.show()
 
     sys.exit(app.exec_())
 
-def button1_clicked():
+def showAddMoreWindow():
     print("Button 1 clicked")
     graphWindow.close()
 
@@ -197,27 +197,68 @@ def window():
     m = folium.Map(
         location=[1.2864, 103.8253], tiles='Stamen Toner', zoom_start=15
     )
+    m = folium.Map(
+        location=[1.3521, 103.8198],
+        zoom_start=11,
+        tiles='https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=sk.eyJ1IjoiZXpyYXllb3NodWEiLCJhIjoiY2tuN2I2Z2luMG1jdjJwcDltc2MyNndtaCJ9.iE8ZBMYNmhbNT4PbBMLZdw', 
+        attr='Mapbox Control Room'
+    )
 
-    # folium.Choropleth(
-    #     geo_data='https://cocl.us/sanfran_geojson' ,
-    #     name='choropleth',
-    #     # data=df_incidents,
-    #     columns = ['PdDistrict','IncidntNum'],
-    #     key_on='feature.properties.DISTRICT',
-    #     fill_color='YlOrRd',
-    #     fill_opacity=0.6,
-    #     line_opacity=0.2,
-    #     legend_name='Crime in San Francisco'
-    # ).add_to(m)
+    markers = [
+        {
+            "latlng": [1.2864, 103.8253],
+            "markercolor": "blue",
+            "radius": 15,
+            "count": 10,
+            "popup": "message here"
+        },
+        {
+            "latlng": [1.2815, 103.8448],
+            "markercolor": "blue",
+            "radius": 15,
+            "count": 15,
+            "popup": "message peeps"
+        }
+    ]
 
-    tooltip = "Click me!"
+    # for i in markers: 
+    #     folium.Marker(i["latlng"], icon=DivIcon(
+    #         icon_size=(150,36),
+    #         icon_anchor=(7,20),
+    #         html='<div style="font-size: 18pt; color : black">%s</div>' % i["count"],
+    #     )).add_to(m)
+    #     m.add_child(folium.CircleMarker(i["latlng"], radius=i["radius"]))
 
-    folium.Marker(
-    [1.2863129, 103.8249515], popup="<i>Mt. Hood Meadows</i>", tooltip=tooltip
-    ).add_to(m)
-    folium.Marker(
-    [1.290058, 103.8213197], popup="<b>Timberline Lodge</b>", tooltip=tooltip
-    ).add_to(m)
+    
+    p1 = [1.2864, 103.8253]
+    m.add_child(folium.CircleMarker(
+                            p1,
+                            radius = 15,
+                            popup="sdfdsds m",
+                            fill=True, # Set fill to True
+                            fill_color='#999999',
+                            color = 'grey',
+                            fill_opacity=0.7
+    ))
+    # folium.Marker(p1, icon=DivIcon(
+    #         icon_size=(150,36),
+    #         icon_anchor=(7,20),
+    #         html='<div style="vertical-align: middle; font-size: 15pt; color :black">8</div>',
+    #         )).add_to(m)
+    # folium.Marker(p1, icon=DivIcon(
+    #         icon_size=(150,36),
+    #         icon_anchor=(7,20),
+    #         html='<div style="vertical-align: middle; font-size: 15pt; color :black">8</div>',
+    #         )).add_to(m)
+    # m.add_child(folium.CircleMarker(p1, radius=20))
+
+    # p2 = [1.2815, 103.8448]
+    # folium.Marker(p2, icon=DivIcon(
+    #         icon_size=(150,36),
+    #         icon_anchor=(7,20),
+    #         html='<div style="font-size: 15pt; color :black">2</div>',
+    #         )).add_to(m)
+    # m.add_child(folium.CircleMarker(p2, radius=15))
 
     win = QMainWindow()
     win.setWindowTitle("CSC1008 Group 5")
@@ -229,7 +270,7 @@ def window():
     button1.setText("Show close contact list")
     button1.adjustSize()
     button1.move(64,32)
-    button1.clicked.connect(button1_clicked)
+    # button1.clicked.connect(button1_clicked)
 
 
     button2 = QPushButton(win)
