@@ -5,7 +5,7 @@ import CloseContactList as cc
 import graphviz
 
 from PyQt5 import QtWidgets,QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog, QPushButton, QLineEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog, QPushButton, QLineEdit, QMessageBox
 # from PyQt5.QtWebEngineWidgets import QtWebEngineWidgets
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtGui import QPixmap
@@ -32,9 +32,13 @@ app =  QApplication(sys.argv)
 graphWindow = QMainWindow()
 # positive_cases_keys = ['positive_case_1', 'positive_case_2']
 
+def closeWindow():
+    print("Button 1 clicked")
+    graphWindow.close()
+
 def showCloseContacts(app, graphWindow):
     graphWindow.setWindowTitle("DiGraph")
-    
+
     graphWindow.central_widget = QWidget()               
     graphWindow.setCentralWidget(graphWindow.central_widget)  
 
@@ -47,24 +51,26 @@ def showCloseContacts(app, graphWindow):
     graphPicLabel.setPixmap(pixmap)
     graphWindow.resize(pixmap.width(), pixmap.height())
 
+    msg = QMessageBox(graphWindow)
+    msg.setIcon(QMessageBox.Information)
+
+    msg.setText("Would you like to add more positive cases?")
+    msg.setWindowTitle("MessageBox demo")
+    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    # msg.buttonClicked.connect(msgbtn)
+
     lay.addWidget(shnLabel)
     lay.addWidget(graphPicLabel)
+    lay.addWidget(msg)
 
-    addMoreOptionBtn = QPushButton(graphWindow)
-    addMoreOptionBtn.setText("Okay")
-    addMoreOptionBtn.adjustSize()
-    # addMoreOptionBtn.move(10,150)
-    addMoreOptionBtn.clicked.connect(showAddMoreWindow)
-
-    lay.addWidget(addMoreOptionBtn, alignment=QtCore.Qt.AlignRight)
     graphWindow.show()
 
-    # sys.exit(app.exec_())
+    retval = msg.exec_()
 
-def showAddMoreWindow():
-    print("Button 1 clicked")
-    graphWindow.close()
-
+    if retval == QMessageBox.Yes:
+        return 'y'
+    elif retval == QMessageBox.No:
+        return 'n'
 
 def creategraph(): 
     d = graphviz.Digraph()
@@ -138,7 +144,7 @@ def close_contacts(n):
 
     creategraph()
 
-    showCloseContacts(app, graphWindow)
+    # showCloseContacts(app, graphWindow)
 
 # for i in sheet:
 #     if i == 'SafeEntry':
@@ -146,6 +152,20 @@ def close_contacts(n):
 #     else:
 #         positive_cases_keys.append(i)
 # app =  QApplication(sys.argv)
+warningWindow = QMainWindow()
+
+def showWarning(text):
+    msgBox = QMessageBox(warningWindow)
+    msgBox.setIcon(QMessageBox.Information)
+    msgBox.setText(text)
+    msgBox.setWindowTitle('Oops!')
+    msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+    #    msgBox.buttonClicked.connect(msgButtonClick)
+    returnValue = msgBox.exec()
+    if returnValue == QMessageBox.Ok:
+        print('OK clicked')
+        newcase(app, newCaseWindow)
+
 newCaseWindow = QMainWindow()
 
 def newcase(app, newCaseWindow):
@@ -155,6 +175,8 @@ def newcase(app, newCaseWindow):
     positivecase, okPressed = QInputDialog.getText(newCaseWindow, "CSC1008 TraceTogether","Enter new positive case:", QLineEdit.Normal, "")
     if okPressed and positivecase != '':
         print(positivecase)
+    else:
+        sys.exit()
 
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
@@ -167,17 +189,19 @@ def newcase(app, newCaseWindow):
                 print("Positive Cases: ")
                 print(', '.join(positive_cases_keys)) #print all positive cases
 
-                cont = input("Enter more positive cases? (y/n): ")
+                cont = showCloseContacts(app, graphWindow)
+
                 if cont == 'y':
+                    closeWindow()
                     newcase(app, newCaseWindow) #recursive call to continue adding new cases 
                 elif cont == 'n':
+                    closeWindow()
                     exit
                 else:
-                    print("Err: Pls enter y or n only.")
+                    showWarning('Please click Yes or No only.')
 
             else:
-                print("Target is already positive.")
-                newcase(app, newCaseWindow)
+                showWarning("Target is already positive.")
         # except:
         #     print("NRIC does not exist.")
         #     newcase()
