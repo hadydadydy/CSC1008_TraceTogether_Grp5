@@ -39,15 +39,15 @@ def closeWindow():
     print("Button 1 clicked")
     graphWindow.close()
 
-def showCloseContacts(app, graphWindow):
-    graphWindow.setWindowTitle("DiGraph")
+def showCloseContacts(app, graphWindow, nric):
+    graphWindow.setWindowTitle(nric+"'s Close Contacts")
 
     graphWindow.central_widget = QWidget()               
     graphWindow.setCentralWidget(graphWindow.central_widget)  
 
     lay = QVBoxLayout(graphWindow.central_widget)
 
-    shnLabel = QtWidgets.QLabel("SHN has been issued to close contacts")
+    shnLabel = QtWidgets.QLabel("SHN has been issued to "+nric+"'s close contacts.\nContinue adding new positive cases?")
     
     graphPicLabel = QtWidgets.QLabel(graphWindow)
     pixmap = QPixmap('digraph.png')
@@ -55,16 +55,15 @@ def showCloseContacts(app, graphWindow):
     graphWindow.resize(pixmap.width(), pixmap.height())
 
     msg = QMessageBox(graphWindow)
-    msg.setIcon(QMessageBox.Information)
+    # msg.setIcon(QMessageBox.Information)
 
-    msg.setText("Would you like to add more positive cases?")
-    msg.setWindowTitle("MessageBox demo")
+    # msg.setText("SHN has been issued to "+nric+"'s close contacts.\nContinue adding new positive cases?")
+    # msg.setDetailedText("Continue adding new positive cases?")
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-    # msg.buttonClicked.connect(msgbtn)
 
-    lay.addWidget(shnLabel)
     lay.addWidget(graphPicLabel)
-    lay.addWidget(msg)
+    lay.addWidget(shnLabel)
+    lay.addWidget(msg, alignment=QtCore.Qt.AlignRight)
 
     graphWindow.show()
 
@@ -177,13 +176,18 @@ def showWarning(text):
 newCaseWindow = QMainWindow()
 
 def newcase(app, newCaseWindow):
-    newCaseWindow.central_widget = QWidget()               
+    newCaseWindow.central_widget = QWidget()         
     newCaseWindow.setCentralWidget(newCaseWindow.central_widget)  
 
-    positivecase, okPressed = QInputDialog.getText(newCaseWindow, "CSC1008 TraceTogether","Enter new positive case:", QLineEdit.Normal, "")
-    if okPressed and positivecase != '':
-        print(positivecase)
-    else:
+    dialog = QInputDialog(newCaseWindow)
+    dialog.resize(QtCore.QSize(600, 300))
+    dialog.setWindowTitle("CSC1008 TraceTogether")
+    dialog.setLabelText("Enter new positive case:")
+    dialog.setTextValue("S9573284R")
+    dialog.setTextEchoMode(QLineEdit.Normal)
+    if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        positivecase = dialog.textValue()
+    else: 
         sys.exit()
 
     if positivecase is not None:
@@ -197,7 +201,7 @@ def newcase(app, newCaseWindow):
                 print("Positive Cases: ")
                 print(', '.join(positive_cases_keys)) #print all positive cases
 
-                cont = showCloseContacts(app, graphWindow)
+                cont = showCloseContacts(app, graphWindow, positivecase)
 
                 if cont == 'y':
                     closeWindow()
