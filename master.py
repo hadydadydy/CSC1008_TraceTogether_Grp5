@@ -27,7 +27,54 @@ df = read_excel(file_name, sheet_name= 'SafeEntry')
 positive_cases_dict = {}
 positive_cases_keys = []
 caseArr = []
+digraphEdges = [] # Edges of each positive case
+app =  QApplication(sys.argv)
+graphWindow = QMainWindow()
 # positive_cases_keys = ['positive_case_1', 'positive_case_2']
+
+def showCloseContacts(app, graphWindow):
+    graphWindow.setWindowTitle("DiGraph")
+    
+    graphWindow.central_widget = QWidget()               
+    graphWindow.setCentralWidget(graphWindow.central_widget)  
+
+    lay = QVBoxLayout(graphWindow.central_widget)
+
+    shnLabel = QtWidgets.QLabel("SHN has been issued to close contacts")
+    
+    graphPicLabel = QtWidgets.QLabel(graphWindow)
+    pixmap = QPixmap('digraph.png')
+    graphPicLabel.setPixmap(pixmap)
+    graphWindow.resize(pixmap.width(), pixmap.height())
+
+    lay.addWidget(shnLabel)
+    lay.addWidget(graphPicLabel)
+
+    addMoreOptionBtn = QPushButton(graphWindow)
+    addMoreOptionBtn.setText("Okay")
+    addMoreOptionBtn.adjustSize()
+    # addMoreOptionBtn.move(10,150)
+    addMoreOptionBtn.clicked.connect(showAddMoreWindow)
+
+    lay.addWidget(addMoreOptionBtn, alignment=QtCore.Qt.AlignRight)
+    graphWindow.show()
+
+    # sys.exit(app.exec_())
+
+def showAddMoreWindow():
+    print("Button 1 clicked")
+    graphWindow.close()
+
+
+def creategraph(): 
+    d = graphviz.Digraph()
+    d.attr(size='10,10')
+
+    for i in digraphEdges:
+        for j in i:
+            d.edge(j[0],j[1])
+
+    d.render('digraph', format='png', view=False)
 
 def close_contacts(n):
     temp = df[df["NRIC"]==n]
@@ -84,13 +131,21 @@ def close_contacts(n):
                     
                     # Insert new case into positive case's CloseContactList by key
                     positive_cases_dict[key].insert(newCase)
+    
+    for i in positive_cases_keys:
+        print("Close Contacts:")
+        digraphEdges.append(positive_cases_dict[i].printList(i))
+
+    creategraph()
+
+    showCloseContacts(app, graphWindow)
 
 # for i in sheet:
 #     if i == 'SafeEntry':
 #         pass
 #     else:
 #         positive_cases_keys.append(i)
-app =  QApplication(sys.argv)
+# app =  QApplication(sys.argv)
 newCaseWindow = QMainWindow()
 
 def newcase(app, newCaseWindow):
@@ -134,63 +189,63 @@ newcase(app, newCaseWindow)
 # Once filtered by Hady's contactTrace() function which returns close contact array.
 
         
-digraphEdges = [] # Edges of each positive case
+# digraphEdges = [] # Edges of each positive case
 
 # Print positive case's CloseContactList by key
 
-for i in positive_cases_keys:
-    print("Close Contacts:")
-    digraphEdges.append(positive_cases_dict[i].printList(i))
+# for i in positive_cases_keys:
+#     print("Close Contacts:")
+#     digraphEdges.append(positive_cases_dict[i].printList(i))
 
 
-def creategraph(): 
-    d = graphviz.Digraph()
-    d.attr(size='10,10')
+# def creategraph(): 
+#     d = graphviz.Digraph()
+#     d.attr(size='10,10')
 
-    for i in digraphEdges:
-        for j in i:
-            d.edge(j[0],j[1])
+#     for i in digraphEdges:
+#         for j in i:
+#             d.edge(j[0],j[1])
 
-    d.render('digraph', format='png', view=False) 
+#     d.render('digraph', format='png', view=False) 
 
-creategraph()
+# creategraph()
 
-graphWindow = QMainWindow()
+# graphWindow = QMainWindow()
 
-def showCloseContacts(app, graphWindow):
-    graphWindow.setWindowTitle("DiGraph")
+# def showCloseContacts(app, graphWindow):
+#     graphWindow.setWindowTitle("DiGraph")
     
-    graphWindow.central_widget = QWidget()               
-    graphWindow.setCentralWidget(graphWindow.central_widget)  
+#     graphWindow.central_widget = QWidget()               
+#     graphWindow.setCentralWidget(graphWindow.central_widget)  
 
-    lay = QVBoxLayout(graphWindow.central_widget)
+#     lay = QVBoxLayout(graphWindow.central_widget)
 
-    shnLabel = QtWidgets.QLabel("SHN has been issued to close contacts")
+#     shnLabel = QtWidgets.QLabel("SHN has been issued to close contacts")
     
-    graphPicLabel = QtWidgets.QLabel(graphWindow)
-    pixmap = QPixmap('digraph.png')
-    graphPicLabel.setPixmap(pixmap)
-    graphWindow.resize(pixmap.width(), pixmap.height())
+#     graphPicLabel = QtWidgets.QLabel(graphWindow)
+#     pixmap = QPixmap('digraph.png')
+#     graphPicLabel.setPixmap(pixmap)
+#     graphWindow.resize(pixmap.width(), pixmap.height())
 
-    lay.addWidget(shnLabel)
-    lay.addWidget(graphPicLabel)
+#     lay.addWidget(shnLabel)
+#     lay.addWidget(graphPicLabel)
 
-    addMoreOptionBtn = QPushButton(graphWindow)
-    addMoreOptionBtn.setText("Okay")
-    addMoreOptionBtn.adjustSize()
-    # addMoreOptionBtn.move(10,150)
-    addMoreOptionBtn.clicked.connect(showAddMoreWindow)
+#     addMoreOptionBtn = QPushButton(graphWindow)
+#     addMoreOptionBtn.setText("Okay")
+#     addMoreOptionBtn.adjustSize()
+#     # addMoreOptionBtn.move(10,150)
+#     addMoreOptionBtn.clicked.connect(showAddMoreWindow)
 
-    lay.addWidget(addMoreOptionBtn, alignment=QtCore.Qt.AlignRight)
-    graphWindow.show()
+#     lay.addWidget(addMoreOptionBtn, alignment=QtCore.Qt.AlignRight)
+#     graphWindow.show()
 
-    sys.exit(app.exec_())
+#     sys.exit(app.exec_())
 
-def showAddMoreWindow():
-    print("Button 1 clicked")
-    graphWindow.close()
+# def showAddMoreWindow():
+#     print("Button 1 clicked")
+#     graphWindow.close()
 
-showCloseContacts(app, graphWindow)
+# showCloseContacts(app, graphWindow)
 
 def window():
     app =  QApplication(sys.argv)
