@@ -21,6 +21,14 @@ xls = pd.ExcelFile(file_name)
 sheet = xls.sheet_names
 df = read_excel(file_name, sheet_name= 'SafeEntry')
 
+loc = df.Location.unique()
+
+date = 0
+beforeDate = 0
+posc = {}
+for i in loc:
+    posc[i] = 0
+
 # To store the positive cases (key: positive case's NRIC, value: CloseContactList)
 positive_cases_dict = {}
 positive_cases_keys = []
@@ -122,9 +130,9 @@ def createGraph():
     d.render('digraph', format='png', view=False)
 
 def findCloseContacts(n,date):
-    temp = df[(df["NRIC"]==n) & (df["Check-in-date"]==date)]
-    print(temp)
-
+    global beforeDate
+    beforeDate = date - timedelta(days = 3)
+    temp = df[(df["NRIC"]==n) & (df["Check-in-date"].between(beforeDate,date))]
     for j in temp.values:
         data = {
             "name": j[0],
@@ -206,8 +214,8 @@ def newcase(app, newCaseWindow):
         positivecase = dialog.textValue()
     else: 
         sys.exit()
+    global date
     date = parser.parse(input("Date positive (YYYY-MM-DD):"))
-    print(date)
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
         #check if inputted case has already tested positive
@@ -218,8 +226,8 @@ def newcase(app, newCaseWindow):
             print("Positive Cases: ")
             print(', '.join(positive_cases_keys)) #print all positive cases
 
-            print("BFS of Positive Case: ")
-            BFS(positivecase)
+            # print("BFS of Positive Case: ")
+            # BFS(positivecase)
 
             cont = showCloseContacts(app, graphWindow, positivecase)
 
@@ -283,23 +291,28 @@ def show_map():
     # p1 = [1.2864, 103.8253]
     lat = []
     lon = []
-    count = 0
+    loc = []
     for i in positive_cases_keys:
-        temp = df[df["NRIC"]==i]
+        temp = df[(df["NRIC"]==i) & (df["Check-in-date"].between(beforeDate,date))]
         temp = temp.drop_duplicates(subset=["NRIC","Location"],keep='last')
+        print(temp)
         for j in temp.values:
-            count = count + 1
             lat.append(j[6])
             lon.append(j[7])
+            loc.append(j[2])
+            for k in posc:
+                if k == j[2]:
+                    posc[k] += 1
+            
 
     for i in range(len(lat)):
         p1 = [lat[i],lon[i]]
         folium.Marker(p1, icon=DivIcon(
             icon_size=(150,36),
             icon_anchor=(7,20),
-            html='<div style="font-size: 15pt; color :black">2</div>',
+            html='<div style="font-size: 15pt; color :black">%s</div>' % posc[loc[i]],
         )).add_to(m)
-        m.add_child(folium.CircleMarker(p1, radius=5+count))
+        m.add_child(folium.CircleMarker(p1, radius=2+2*posc[loc[i]]))
 
     data = io.BytesIO()
     m.save(data, close_file=False)
