@@ -15,7 +15,7 @@ import folium
 from folium.features import DivIcon
 import io
 
-file_name = 'dataset_final_v2.xlsm'
+file_name = 'dataset_final.xlsx'
 
 xls = pd.ExcelFile(file_name)
 sheet = xls.sheet_names
@@ -63,7 +63,7 @@ def showCloseContacts(app, graphWindow, nric):
     graphWindow.resize(pixmap.width(), pixmap.height())
 
     msg = QMessageBox(graphWindow)
-    msg.setText("<p align='left'>Stay Home Notice has been issued to "+nric+"'s close contacts. Continue adding new positive cases?<br>")
+    msg.setText("<p align='left'><strong>Visualization updated: </strong>\nStay Home Notice has been issued to "+nric+"'s close contacts. Continue adding new positive cases?<br>")
     msg.setStyleSheet("width: "+str(pixmap.width()/2.5)+";")
     msg.setMinimumWidth(pixmap.width())
     # msg.setGeometry(0, 0, pixmap.width(), pixmap.height())
@@ -347,12 +347,22 @@ def show_map():
 
     for i in range(len(lat)):
         p1 = [lat[i],lon[i]]
-        folium.Marker(p1, icon=DivIcon(
+        folium.Marker(p1, 
+            popup=loc[i],
+            icon=DivIcon(
             icon_size=(150,36),
             icon_anchor=(7,20),
-            html='<div style="font-size: 15pt; color :black">%s</div>' % posc[loc[i]],
+            html='<div style="font-size: 12pt; margin-top: 5px; color: "#8B0000";"><strong>%s</strong></div>' % posc[loc[i]],
         )).add_to(m)
-        m.add_child(folium.CircleMarker(p1, radius=10+3*posc[loc[i]]))
+        m.add_child(folium.CircleMarker(
+            p1, 
+            popup=loc[i],
+            radius=10+4*posc[loc[i]],
+            fill=True,
+            fill_color="#FF6347",
+            fill_opacity = 0.3 +(0.1/posc[loc[i]]),
+            color="#8B0000"
+            ))
 
     data = io.BytesIO()
     m.save(data, close_file=False)
