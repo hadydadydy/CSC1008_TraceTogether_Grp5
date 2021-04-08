@@ -3,6 +3,8 @@ import pandas as pd
 import numpy
 import CloseContactList as cc
 import graphviz
+from dateutil import parser
+from datetime import timedelta, datetime
 
 from PyQt5 import QtWidgets,QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QInputDialog, QPushButton, QLineEdit, QMessageBox
@@ -30,10 +32,49 @@ app =  QApplication(sys.argv)
 graphWindow = QMainWindow()
 warningWindow = QMainWindow()
 newCaseWindow = QMainWindow()
+win = QMainWindow()
+map_window = QMainWindow()
 
 def closeWindow():
     print("Button 1 clicked")
     graphWindow.close()
+
+#Find level 2 contacts with Breadth First Search
+def BFS(s):
+    prnt = [] #create array for BFS output
+    visited = [] #create array for visited nodes
+    queue = []# Create a queue for BFS
+    queue.append(s)# enqueue source node
+    visited.append(s) #mark source node as visited
+    while queue:
+        s = queue.pop(0) #pop (dequeue) a vertex from queue
+        prnt.append(s) #and add it to the output list
+        #loop through all adjacent vertices of the dequeued vertex s
+        for i in positive_cases_keys:
+            #if not visited yet,
+            if i not in visited:
+                queue.append(i) #enqueue vertex
+                visited.append(i) #mark as visited
+    org = prnt.pop(0) #pop the source node from BFS list
+    level2 = [] #create list for level 2 contacts
+    #for every node in BFS list
+    for x in prnt:
+        #for every cc of node (in adjacency list)
+        for y in positive_cases_dict[x]:
+            #check if node is not already a level 2
+            #this ensures that we only check level 2 contacts of source node
+            if x not in level2:
+                level2.append(y) #add to level 2 list
+    if not level2:
+        print(org, "has no level 2 contacts.")
+    else:
+        print ("Level 2 contacts of", org, ":", ', '.join(level2))
+
+    lvl2case = input("Show Level 2 of : ")
+    if lvl2case in positive_cases_dict:
+        BFS(lvl2case)  
+    else:
+        print(lvl2case, "is not positive.")
 
 def showCloseContacts(app, graphWindow, nric):
     graphWindow.setWindowTitle(nric+"'s Close Contacts")
@@ -77,8 +118,9 @@ def creategraph():
 
     d.render('digraph', format='png', view=False)
 
-def close_contacts(n):
-    temp = df[df["NRIC"]==n]
+def close_contacts(n,date):
+    temp = df[(df["NRIC"]==n) & (df["Check-in-date"]==date)]
+    print(temp)
 
     for j in temp.values:
         data = {
@@ -150,16 +192,20 @@ def newcase(app, newCaseWindow):
         positivecase = dialog.textValue()
     else: 
         sys.exit()
-
+    date = parser.parse(input("Date positive (YYYY-MM-DD):"))
+    print(date)
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
         #check if inputted case has already tested positive
         if positivecase not in positive_cases_keys:
             positive_cases_keys.append(positivecase) #add case to positive case list
-            close_contacts(positivecase) #print close contacts of this case
+            close_contacts(positivecase,date) #print close contacts of this case
                 
             print("Positive Cases: ")
             print(', '.join(positive_cases_keys)) #print all positive cases
+
+            print("BFS of Positive Case: ")
+            BFS(positivecase)
 
             cont = showCloseContacts(app, graphWindow, positivecase)
 
@@ -175,7 +221,6 @@ def newcase(app, newCaseWindow):
         else:
             showWarning('The target is already positive.')
 
-win = QMainWindow()
 
 def window():
 
@@ -205,7 +250,6 @@ def window():
 
     sys.exit(app.exec_())
 
-map_window = QMainWindow()
 def show_map():
     print("Button 4 clicked")  
     win.close()
