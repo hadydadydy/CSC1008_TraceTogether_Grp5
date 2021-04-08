@@ -15,7 +15,6 @@ import folium
 from folium.features import DivIcon
 import io
 
-
 file_name = 'dataset_final_v2.xlsm'
 
 xls = pd.ExcelFile(file_name)
@@ -77,7 +76,7 @@ def BFS(s):
         print(lvl2case, "is not positive.")
 
 def showCloseContacts(app, graphWindow, nric):
-    graphWindow.setWindowTitle(nric+"'s Close Contacts")
+    graphWindow.setWindowTitle("Close Contact Visualization")
 
     graphWindow.central_widget = QWidget()               
     graphWindow.setCentralWidget(graphWindow.central_widget)  
@@ -85,19 +84,23 @@ def showCloseContacts(app, graphWindow, nric):
     lay = QVBoxLayout(graphWindow.central_widget)
 
     shnLabel = QtWidgets.QLabel("SHN has been issued to "+nric+"'s close contacts.\nContinue adding new positive cases?")
-    
+    shnLabel.setAlignment(QtCore.Qt.AlignCenter)
     graphPicLabel = QtWidgets.QLabel(graphWindow)
     pixmap = QPixmap('digraph.png')
     graphPicLabel.setPixmap(pixmap)
     graphWindow.resize(pixmap.width(), pixmap.height())
 
     msg = QMessageBox(graphWindow)
+    msg.setText("<p align='left'>SHN has been issued to "+nric+"'s close contacts. Continue adding new positive cases?<br>")
+    msg.setStyleSheet("width: "+str(pixmap.width()/2.5)+";")
+    msg.setMinimumWidth(pixmap.width())
+    # msg.setGeometry(0, 0, pixmap.width(), pixmap.height())
 
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
 
-    lay.addWidget(graphPicLabel)
-    lay.addWidget(shnLabel)
-    lay.addWidget(msg, alignment=QtCore.Qt.AlignRight)
+    lay.addWidget(graphPicLabel, alignment=QtCore.Qt.AlignCenter)
+    # lay.addWidget(shnLabel)
+    lay.addWidget(msg, alignment=QtCore.Qt.AlignCenter)
 
     graphWindow.show()
 
@@ -108,7 +111,7 @@ def showCloseContacts(app, graphWindow, nric):
     elif retval == QMessageBox.No:
         return 'n'
 
-def creategraph(): 
+def createGraph(): 
     d = graphviz.Digraph()
     d.attr(size='10,10')
 
@@ -118,7 +121,7 @@ def creategraph():
 
     d.render('digraph', format='png', view=False)
 
-def close_contacts(n,date):
+def findCloseContacts(n,date):
     temp = df[(df["NRIC"]==n) & (df["Check-in-date"]==date)]
     print(temp)
 
@@ -165,7 +168,7 @@ def close_contacts(n,date):
         positive_cases_dict[i].printList(i)
 
     digraphEdges.append(positive_cases_dict[n].edges(n))
-    creategraph()
+    createGraph()
 
 def showWarning(text):
     msgBox = QMessageBox(warningWindow)
@@ -177,6 +180,17 @@ def showWarning(text):
     if returnValue == QMessageBox.Ok:
         print('OK clicked')
         newcase(app, newCaseWindow)
+    else: 
+        sys.exit()
+
+def submit(self):
+    str = self.line_edit.text()
+    # check str before doing anything with it!
+    print(str)
+
+def clear(self):
+    print ("cleared")
+    self.line_edit.setText("")
 
 def newcase(app, newCaseWindow):
     newCaseWindow.central_widget = QWidget()         
@@ -185,7 +199,7 @@ def newcase(app, newCaseWindow):
     dialog = QInputDialog(newCaseWindow)
     dialog.resize(QtCore.QSize(600, 300))
     dialog.setWindowTitle("CSC1008 TraceTogether")
-    dialog.setLabelText("Enter new positive case:")
+    dialog.setLabelText("Start contact tracing...\n\nEnter new positive case:")
     dialog.setTextValue("S9573284R")
     dialog.setTextEchoMode(QLineEdit.Normal)
     if dialog.exec_() == QtWidgets.QDialog.Accepted:
@@ -199,7 +213,7 @@ def newcase(app, newCaseWindow):
         #check if inputted case has already tested positive
         if positivecase not in positive_cases_keys:
             positive_cases_keys.append(positivecase) #add case to positive case list
-            close_contacts(positivecase,date) #print close contacts of this case
+            findCloseContacts(positivecase,date) #print close contacts of this case
                 
             print("Positive Cases: ")
             print(', '.join(positive_cases_keys)) #print all positive cases
@@ -219,12 +233,11 @@ def newcase(app, newCaseWindow):
                 showWarning('Please click Yes or No only.')
 
         else:
-            showWarning('The target is already positive.')
+            showWarning('The target is already positive. Continue adding other cases?')
 
 
 def window():
-
-    win.setWindowTitle("dsfsdf")
+    win.setWindowTitle("Close Contact Visualization")
 
     win.central_widget = QWidget()               
     win.setCentralWidget(win.central_widget)  
@@ -236,14 +249,17 @@ def window():
     graphPicLabel.setPixmap(pixmap)
     win.resize(pixmap.width(), pixmap.height())
 
+    endedLabel = QtWidgets.QLabel("Pending results of swab tests for close contacts.")
+    endedLabel.setAlignment(QtCore.Qt.AlignCenter)
+
     button4 = QPushButton(win)
     button4.setText("Show map")
     button4.adjustSize()
-    # button4.move(64,132)
     button4.clicked.connect(show_map)
 
     win.resize(pixmap.width(),pixmap.height())
 
+    lay.addWidget(endedLabel)
     lay.addWidget(graphPicLabel)
     lay.addWidget(button4, alignment=QtCore.Qt.AlignRight)
     win.show()
@@ -251,9 +267,8 @@ def window():
     sys.exit(app.exec_())
 
 def show_map():
-    print("Button 4 clicked")  
     win.close()
-    map_window.setWindowTitle("CSC1008 Cluster Map")
+    map_window.setWindowTitle("Clusters")
 
     map_window.central_widget = QWidget()               
     map_window.setCentralWidget(map_window.central_widget)   
