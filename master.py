@@ -41,6 +41,8 @@ warningWindow = QMainWindow()
 newCaseWindow = QMainWindow()
 win = QMainWindow()
 map_window = QMainWindow()
+bfsWindow = QMainWindow()
+dateWindow = QMainWindow()
 
 def closeWindow():
     print("Button 1 clicked")
@@ -48,6 +50,7 @@ def closeWindow():
 
 #Find level 2 contacts with Breadth First Search
 def BFS(s):
+    print(s)
     prnt = [] #create array for BFS output
     visited = [] #create array for visited nodes
     queue = []# Create a queue for BFS
@@ -67,21 +70,39 @@ def BFS(s):
     #for every node in BFS list
     for x in prnt:
         #for every cc of node (in adjacency list)
-        for y in positive_cases_dict[x]:
+        for y in positive_cases_keys:
             #check if node is not already a level 2
             #this ensures that we only check level 2 contacts of source node
             if x not in level2:
                 level2.append(y) #add to level 2 list
     if not level2:
-        print(org, "has no level 2 contacts.")
+        showWarning(org+"has no level 2 contacts.")
     else:
-        print ("Level 2 contacts of", org, ":", ', '.join(level2))
+        showWarning("Level 2 contacts of "+org+": "+', '.join(level2))
 
-    lvl2case = input("Show Level 2 of : ")
+    # lvl2case = input("Show Level 2 of: ")
+    bfsWindow.setWindowTitle("BFS Search")
+
+    bfsWindow.central_widget = QWidget()               
+    bfsWindow.setCentralWidget(bfsWindow.central_widget)  
+
+    dialog = QInputDialog(bfsWindow)
+    dialog.resize(QtCore.QSize(600, 300))
+    dialog.setWindowTitle("CSC1008 TraceTogether")
+    dialog.setLabelText("Show Level 2 of:")
+    dialog.setTextValue("S8572664B")
+    dialog.setTextEchoMode(QLineEdit.Normal)
+
+    if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        lvl2case = dialog.textValue()
+        bfsWindow.close()
+    else: 
+        sys.exit()
+
     if lvl2case in positive_cases_dict:
-        BFS(lvl2case)  
+        BFS(lvl2case)
     else:
-        print(lvl2case, "is not positive.")
+        showWarning(lvl2case+"is not positive.")
 
 def showCloseContacts(app, graphWindow, nric):
     graphWindow.setWindowTitle("Close Contact Visualization")
@@ -91,8 +112,6 @@ def showCloseContacts(app, graphWindow, nric):
 
     lay = QVBoxLayout(graphWindow.central_widget)
 
-    shnLabel = QtWidgets.QLabel("SHN has been issued to "+nric+"'s close contacts.\nContinue adding new positive cases?")
-    shnLabel.setAlignment(QtCore.Qt.AlignCenter)
     graphPicLabel = QtWidgets.QLabel(graphWindow)
     pixmap = QPixmap('digraph.png')
     graphPicLabel.setPixmap(pixmap)
@@ -204,6 +223,9 @@ def newcase(app, newCaseWindow):
     newCaseWindow.central_widget = QWidget()         
     newCaseWindow.setCentralWidget(newCaseWindow.central_widget)  
 
+    dateWindow.central_widget = QWidget()         
+    dateWindow.setCentralWidget(dateWindow.central_widget)  
+
     dialog = QInputDialog(newCaseWindow)
     dialog.resize(QtCore.QSize(600, 300))
     dialog.setWindowTitle("CSC1008 TraceTogether")
@@ -212,10 +234,23 @@ def newcase(app, newCaseWindow):
     dialog.setTextEchoMode(QLineEdit.Normal)
     if dialog.exec_() == QtWidgets.QDialog.Accepted:
         positivecase = dialog.textValue()
+        newCaseWindow.close()
+
+        dialog1 = QInputDialog(dateWindow)
+        dialog1.resize(QtCore.QSize(600, 300))
+        dialog1.setWindowTitle("CSC1008 TraceTogether")
+        dialog1.setLabelText("Date tested positive (YYYY-MM-DD):")
+        dialog1.setTextValue("2021-01-05")
+        dialog1.setTextEchoMode(QLineEdit.Normal)
+        if dialog1.exec_() == QtWidgets.QDialog.Accepted:
+            date = parser.parse(dialog1.textValue())
+            dateWindow.close()
+        else: 
+            sys.exit()
     else: 
         sys.exit()
-    global date
-    date = parser.parse(input("Date positive (YYYY-MM-DD):"))
+
+    print(date)
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
         #check if inputted case has already tested positive
@@ -225,9 +260,6 @@ def newcase(app, newCaseWindow):
                 
             print("Positive Cases: ")
             print(', '.join(positive_cases_keys)) #print all positive cases
-
-            # print("BFS of Positive Case: ")
-            # BFS(positivecase)
 
             cont = showCloseContacts(app, graphWindow, positivecase)
 
@@ -243,6 +275,26 @@ def newcase(app, newCaseWindow):
         else:
             showWarning('The target is already positive. Continue adding other cases?')
 
+def checkpositive():
+    win.close()
+    bfsWindow.setWindowTitle("BFS Search")
+
+    bfsWindow.central_widget = QWidget()               
+    bfsWindow.setCentralWidget(bfsWindow.central_widget)  
+
+    dialog = QInputDialog(bfsWindow)
+    dialog.resize(QtCore.QSize(600, 300))
+    dialog.setWindowTitle("CSC1008 TraceTogether")
+    dialog.setLabelText("Enter NRIC to check if positive:")
+    dialog.setTextValue("S8572664B")
+    dialog.setTextEchoMode(QLineEdit.Normal)
+
+    if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        positivecase = dialog.textValue()
+        BFS(positivecase)
+        bfsWindow.close()
+    else: 
+        sys.exit()
 
 def window():
     win.setWindowTitle("Close Contact Visualization")
@@ -265,11 +317,17 @@ def window():
     button4.adjustSize()
     button4.clicked.connect(show_map)
 
+    searchbtn = QPushButton(win)
+    searchbtn.setText("Check positive case")
+    searchbtn.adjustSize()
+    searchbtn.clicked.connect(checkpositive)
+
     win.resize(pixmap.width(),pixmap.height())
 
     lay.addWidget(endedLabel)
     lay.addWidget(graphPicLabel)
     lay.addWidget(button4, alignment=QtCore.Qt.AlignRight)
+    lay.addWidget(searchbtn, alignment=QtCore.Qt.AlignRight)
     win.show()
 
     sys.exit(app.exec_())
