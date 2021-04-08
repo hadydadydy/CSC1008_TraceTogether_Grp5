@@ -41,68 +41,13 @@ warningWindow = QMainWindow()
 newCaseWindow = QMainWindow()
 win = QMainWindow()
 map_window = QMainWindow()
-bfsWindow = QMainWindow()
 dateWindow = QMainWindow()
+searchWindow = QMainWindow()
+recordsWindow = QMainWindow()
 
 def closeWindow():
     print("Button 1 clicked")
     graphWindow.close()
-
-#Find level 2 contacts with Breadth First Search
-def BFS(s):
-    print(s)
-    prnt = [] #create array for BFS output
-    visited = [] #create array for visited nodes
-    queue = []# Create a queue for BFS
-    queue.append(s)# enqueue source node
-    visited.append(s) #mark source node as visited
-    while queue:
-        s = queue.pop(0) #pop (dequeue) a vertex from queue
-        prnt.append(s) #and add it to the output list
-        #loop through all adjacent vertices of the dequeued vertex s
-        for i in positive_cases_keys:
-            #if not visited yet,
-            if i not in visited:
-                queue.append(i) #enqueue vertex
-                visited.append(i) #mark as visited
-    org = prnt.pop(0) #pop the source node from BFS list
-    level2 = [] #create list for level 2 contacts
-    #for every node in BFS list
-    for x in prnt:
-        #for every cc of node (in adjacency list)
-        for y in positive_cases_keys:
-            #check if node is not already a level 2
-            #this ensures that we only check level 2 contacts of source node
-            if x not in level2:
-                level2.append(y) #add to level 2 list
-    if not level2:
-        showWarning(org+"has no level 2 contacts.")
-    else:
-        showWarning("Level 2 contacts of "+org+": "+', '.join(level2))
-
-    # lvl2case = input("Show Level 2 of: ")
-    bfsWindow.setWindowTitle("BFS Search")
-
-    bfsWindow.central_widget = QWidget()               
-    bfsWindow.setCentralWidget(bfsWindow.central_widget)  
-
-    dialog = QInputDialog(bfsWindow)
-    dialog.resize(QtCore.QSize(600, 300))
-    dialog.setWindowTitle("CSC1008 TraceTogether")
-    dialog.setLabelText("Show Level 2 of:")
-    dialog.setTextValue("S8572664B")
-    dialog.setTextEchoMode(QLineEdit.Normal)
-
-    if dialog.exec_() == QtWidgets.QDialog.Accepted:
-        lvl2case = dialog.textValue()
-        bfsWindow.close()
-    else: 
-        sys.exit()
-
-    if lvl2case in positive_cases_dict:
-        BFS(lvl2case)
-    else:
-        showWarning(lvl2case+"is not positive.")
 
 def showCloseContacts(app, graphWindow, nric):
     graphWindow.setWindowTitle("Close Contact Visualization")
@@ -118,7 +63,7 @@ def showCloseContacts(app, graphWindow, nric):
     graphWindow.resize(pixmap.width(), pixmap.height())
 
     msg = QMessageBox(graphWindow)
-    msg.setText("<p align='left'>SHN has been issued to "+nric+"'s close contacts. Continue adding new positive cases?<br>")
+    msg.setText("<p align='left'>Stay Home Notice has been issued to "+nric+"'s close contacts. Continue adding new positive cases?<br>")
     msg.setStyleSheet("width: "+str(pixmap.width()/2.5)+";")
     msg.setMinimumWidth(pixmap.width())
     # msg.setGeometry(0, 0, pixmap.width(), pixmap.height())
@@ -243,6 +188,7 @@ def newcase(app, newCaseWindow):
         dialog1.setTextValue("2021-01-05")
         dialog1.setTextEchoMode(QLineEdit.Normal)
         if dialog1.exec_() == QtWidgets.QDialog.Accepted:
+            global date
             date = parser.parse(dialog1.textValue())
             dateWindow.close()
         else: 
@@ -275,27 +221,6 @@ def newcase(app, newCaseWindow):
         else:
             showWarning('The target is already positive. Continue adding other cases?')
 
-def checkpositive():
-    win.close()
-    bfsWindow.setWindowTitle("BFS Search")
-
-    bfsWindow.central_widget = QWidget()               
-    bfsWindow.setCentralWidget(bfsWindow.central_widget)  
-
-    dialog = QInputDialog(bfsWindow)
-    dialog.resize(QtCore.QSize(600, 300))
-    dialog.setWindowTitle("CSC1008 TraceTogether")
-    dialog.setLabelText("Enter NRIC to check if positive:")
-    dialog.setTextValue("S8572664B")
-    dialog.setTextEchoMode(QLineEdit.Normal)
-
-    if dialog.exec_() == QtWidgets.QDialog.Accepted:
-        positivecase = dialog.textValue()
-        BFS(positivecase)
-        bfsWindow.close()
-    else: 
-        sys.exit()
-
 def window():
     win.setWindowTitle("Close Contact Visualization")
 
@@ -318,9 +243,9 @@ def window():
     button4.clicked.connect(show_map)
 
     searchbtn = QPushButton(win)
-    searchbtn.setText("Check positive case")
+    searchbtn.setText("Search for case")
     searchbtn.adjustSize()
-    searchbtn.clicked.connect(checkpositive)
+    searchbtn.clicked.connect(searchCase)
 
     win.resize(pixmap.width(),pixmap.height())
 
@@ -331,6 +256,63 @@ def window():
     win.show()
 
     sys.exit(app.exec_())
+
+def searchCase():
+    win.close()
+
+    searchWindow.setWindowTitle("Search case")
+
+    searchWindow.central_widget = QWidget()               
+    searchWindow.setCentralWidget(searchWindow.central_widget)   
+
+    dialog = QInputDialog(searchWindow)
+    dialog.resize(QtCore.QSize(600, 300))
+    dialog.setWindowTitle("CSC1008 TraceTogether")
+    dialog.setLabelText("Enter NRIC for his details:")
+    dialog.setTextValue("S9573284R")
+    dialog.setTextEchoMode(QLineEdit.Normal)
+    if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        searchcase = dialog.textValue()
+        showRecords(searchcase)
+    else: 
+        sys.exit()
+
+def showRecords(s):
+    searchWindow.close()
+
+    recordsWindow.setWindowTitle("SafeEntry Records")
+
+    recordsWindow.central_widget = QWidget()               
+    recordsWindow.setCentralWidget(recordsWindow.central_widget)  
+
+    lay = QVBoxLayout(recordsWindow.central_widget)
+        
+    temp = df[(df["NRIC"]==s)]
+
+    tempStr = ''
+    for j in temp.values:
+        tempStr = tempStr + 'Name: '+j[0]+' NRIC: '+j[1]+' Location: '+j[2]+' Check-in Date: '+str(j[3])+' Check-in Time: '+str(j[4])+' Check-out Time: '+str(j[5])+'\n'
+
+    print(tempStr)
+
+    testPos = False
+
+    for i in positive_cases_keys:
+        if s == i:
+            testPos = True
+
+    if testPos:
+        posLabel = QtWidgets.QLabel("The case has tested positive. \n")
+        lay.addWidget(posLabel)
+
+    detailsLabel = QtWidgets.QLabel(tempStr)
+    detailsLabel.setAlignment(QtCore.Qt.AlignLeft)
+
+    lay.addWidget(detailsLabel)
+
+    recordsWindow.show()
+
+    # sys.exit(app.exec_())
 
 def show_map():
     win.close()
@@ -370,7 +352,7 @@ def show_map():
             icon_anchor=(7,20),
             html='<div style="font-size: 15pt; color :black">%s</div>' % posc[loc[i]],
         )).add_to(m)
-        m.add_child(folium.CircleMarker(p1, radius=2+2*posc[loc[i]]))
+        m.add_child(folium.CircleMarker(p1, radius=10+3*posc[loc[i]]))
 
     data = io.BytesIO()
     m.save(data, close_file=False)
