@@ -268,8 +268,8 @@ def searchCase():
     dialog = QInputDialog(searchWindow)
     dialog.resize(QtCore.QSize(600, 300))
     dialog.setWindowTitle("CSC1008 TraceTogether")
-    dialog.setLabelText("Enter NRIC for his details:")
-    dialog.setTextValue("S9573284R")
+    dialog.setLabelText("Enter NRIC for his records:")
+    dialog.setTextValue("S8572664B")
     dialog.setTextEchoMode(QLineEdit.Normal)
     if dialog.exec_() == QtWidgets.QDialog.Accepted:
         searchcase = dialog.textValue()
@@ -286,14 +286,20 @@ def showRecords(s):
     recordsWindow.setCentralWidget(recordsWindow.central_widget)  
 
     lay = QVBoxLayout(recordsWindow.central_widget)
-        
-    temp = df[(df["NRIC"]==s)]
+
+    records = []
+    recordKey = []
+
+    for i in positive_cases_keys:
+        if positive_cases_dict[i].search(s) != None:
+            print("i ", i)
+            print("record ", positive_cases_dict[i].search(s))
+            recordKey.append(i)
+            records.append(positive_cases_dict[i].search(s))
 
     tempStr = ''
-    for j in temp.values:
-        tempStr = tempStr + 'Name: '+j[0]+' NRIC: '+j[1]+' Location: '+j[2]+' Check-in Date: '+str(j[3])+' Check-in Time: '+str(j[4])+' Check-out Time: '+str(j[5])+'\n'
-
-    print(tempStr)
+    for record in range(len(records)):
+        tempStr = tempStr + '\nParent node: ' + recordKey[record] + ' \nName: '+records[record]["name"]+', NRIC: '+records[record]["nric"]+', Location: '+records[record]["location"]+', Check-in Date: '+str(records[record]["checkInDate"])+', Check-in Time: '+str(records[record]["checkInTime"])+', Check-out Time: '+str(records[record]["checkOutTime"])+'\n'
 
     testPos = False
 
