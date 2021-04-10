@@ -26,7 +26,7 @@ class CloseContactList:
         while current != None:
             if current.data["nric"] == key:
                 res = current.data
-                print(res)
+                # print(res)
               
             current = current.next
         
@@ -41,7 +41,7 @@ class CloseContactList:
         while temp is not None:
             sinep = listStr + temp.data["nric"]
             # edges.append([first, temp.data["nric"]])
-            print(sinep)
+            # print(sinep)
             tt = temp.data["nric"]
             temp = temp.next
             if temp is not None:

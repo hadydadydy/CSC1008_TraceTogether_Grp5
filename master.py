@@ -46,7 +46,7 @@ searchWindow = QMainWindow()
 recordsWindow = QMainWindow()
 
 def closeWindow():
-    print("Button 1 clicked")
+    # print("Button 1 clicked")
     graphWindow.close()
 
 def showCloseContacts(app, graphWindow, nric):
@@ -136,7 +136,7 @@ def findCloseContacts(n,date):
                     positive_cases_dict[i.data["nric"]].insert(newCase)
     
     for i in positive_cases_keys:
-        print("Close Contacts:")
+        # print("Close Contacts:")
         positive_cases_dict[i].printList(i)
 
     digraphEdges.append(positive_cases_dict[n].edges(n))
@@ -150,7 +150,7 @@ def showWarning(text):
     msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
     returnValue = msgBox.exec()
     if returnValue == QMessageBox.Ok:
-        print('OK clicked')
+        # print('OK clicked')
         newcase(app, newCaseWindow)
     else: 
         sys.exit()
@@ -158,10 +158,10 @@ def showWarning(text):
 def submit(self):
     str = self.line_edit.text()
     # check str before doing anything with it!
-    print(str)
+    # print(str)
 
 def clear(self):
-    print ("cleared")
+    # print ("cleared")
     self.line_edit.setText("")
 
 def newcase(app, newCaseWindow):
@@ -196,7 +196,7 @@ def newcase(app, newCaseWindow):
     else: 
         sys.exit()
 
-    print(date)
+    # print(date)
     if positivecase is not None:
         #check here if positivecase is in dataset, if not return error msg
         #check if inputted case has already tested positive
@@ -204,8 +204,8 @@ def newcase(app, newCaseWindow):
             positive_cases_keys.append(positivecase) #add case to positive case list
             findCloseContacts(positivecase,date) #print close contacts of this case
                 
-            print("Positive Cases: ")
-            print(', '.join(positive_cases_keys)) #print all positive cases
+            # print("Positive Cases: ")
+            # print(', '.join(positive_cases_keys)) #print all positive cases
 
             cont = showCloseContacts(app, graphWindow, positivecase)
 
@@ -238,12 +238,12 @@ def window():
     endedLabel.setAlignment(QtCore.Qt.AlignCenter)
 
     button4 = QPushButton(win)
-    button4.setText("Show map")
+    button4.setText("View Location Clusters")
     button4.adjustSize()
     button4.clicked.connect(show_map)
 
     searchbtn = QPushButton(win)
-    searchbtn.setText("Search for case")
+    searchbtn.setText("Check Case Exposure")
     searchbtn.adjustSize()
     searchbtn.clicked.connect(searchCase)
 
@@ -258,7 +258,7 @@ def window():
     sys.exit(app.exec_())
 
 def searchCase():
-    win.close()
+    # win.close()
 
     searchWindow.setWindowTitle("Search case")
 
@@ -268,8 +268,8 @@ def searchCase():
     dialog = QInputDialog(searchWindow)
     dialog.resize(QtCore.QSize(600, 300))
     dialog.setWindowTitle("CSC1008 TraceTogether")
-    dialog.setLabelText("Enter NRIC for his records:")
-    dialog.setTextValue("S8572664B")
+    dialog.setLabelText("Enter NRIC for his/her exposure records:")
+    dialog.setTextValue("S7294823R")
     dialog.setTextEchoMode(QLineEdit.Normal)
     if dialog.exec_() == QtWidgets.QDialog.Accepted:
         searchcase = dialog.textValue()
@@ -280,7 +280,7 @@ def searchCase():
 def showRecords(s):
     searchWindow.close()
 
-    recordsWindow.setWindowTitle("SafeEntry Records")
+    recordsWindow.setWindowTitle("SafeEntry Exposure Records")
 
     recordsWindow.central_widget = QWidget()               
     recordsWindow.setCentralWidget(recordsWindow.central_widget)  
@@ -292,8 +292,8 @@ def showRecords(s):
 
     for i in positive_cases_keys:
         if positive_cases_dict[i].search(s) != None:
-            print("i ", i)
-            print("record ", positive_cases_dict[i].search(s))
+            # print("i ", i)
+            # print("record ", positive_cases_dict[i].search(s))
             recordKey.append(i)
             records.append(positive_cases_dict[i].search(s))
 
@@ -314,11 +314,21 @@ def showRecords(s):
     detailsLabel = QtWidgets.QLabel(tempStr)
     detailsLabel.setAlignment(QtCore.Qt.AlignLeft)
 
+    backBtn = QPushButton(recordsWindow)
+    backBtn.setText("Go back to Visualization")
+    backBtn.adjustSize()
+    backBtn.clicked.connect(openWindowAgain)
+
     lay.addWidget(detailsLabel)
+    lay.addWidget(backBtn, alignment=QtCore.Qt.AlignRight)
 
     recordsWindow.show()
 
     # sys.exit(app.exec_())
+
+def openWindowAgain():
+    recordsWindow.close()
+    # window()
 
 def show_map():
     win.close()
@@ -341,7 +351,7 @@ def show_map():
     for i in positive_cases_keys:
         temp = df[(df["NRIC"]==i) & (df["Check-in-date"].between(beforeDate,date))]
         temp = temp.drop_duplicates(subset=["NRIC","Location"],keep='last')
-        print(temp)
+        # print(temp)
         for j in temp.values:
             lat.append(j[6])
             lon.append(j[7])
